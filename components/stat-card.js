@@ -5,16 +5,6 @@ import { LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-interface StatCardProps {
-    title: string;
-    value: string | number;
-    icon: LucideIcon;
-    description?: string;
-    trend?: string;
-    trendUp?: boolean;
-    href?: string;
-    className?: string;
-}
 
 export function StatCard({
     title,
@@ -25,7 +15,7 @@ export function StatCard({
     trendUp,
     href,
     className,
-}: StatCardProps) {
+}) {
     const router = useRouter();
 
     const handleClick = () => {

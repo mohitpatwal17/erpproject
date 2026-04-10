@@ -9,7 +9,7 @@ function Switch({
   className,
   size = "default",
   ...props
-}: React.ComponentProps<typeof SwitchPrimitive.Root> & {
+} & {
   size?: "sm" | "default"
 }) {
   return (

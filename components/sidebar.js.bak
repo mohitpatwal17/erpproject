@@ -42,11 +42,18 @@ export function Sidebar({ className, session }) {
       roles: ["ADMIN"]
     },
     {
+      label: "My Students",
+      icon: Users,
+      href: "/dashboard/students",
+      color: "text-violet-500",
+      roles: ["FACULTY"]
+    },
+    {
       label: "Students",
       icon: Users,
       href: "/dashboard/students",
       color: "text-violet-500",
-      roles: ["ADMIN", "FACULTY"]
+      roles: ["ADMIN"]
     },
     {
       label: "Faculty",
@@ -77,11 +84,18 @@ export function Sidebar({ className, session }) {
       roles: ["ADMIN", "FACULTY", "STUDENT"]
     },
     {
-      label: "Fees",
+      label: "My Fees",
       icon: CreditCard,
       href: "/dashboard/fees",
       color: "text-yellow-600",
-      roles: ["ADMIN", "STUDENT"]
+      roles: ["STUDENT"]
+    },
+    {
+      label: "Fees Management",
+      icon: CreditCard,
+      href: "/dashboard/fees",
+      color: "text-yellow-600",
+      roles: ["ADMIN"]
     },
     {
       label: "Timetable",
@@ -105,18 +119,18 @@ export function Sidebar({ className, session }) {
       roles: ["FACULTY"]
     },
     {
-      label: "Leaves",
+      label: "My Leaves",
       icon: CalendarCheck,
       href: "/dashboard/leaves",
       color: "text-teal-600",
-      roles: ["FACULTY", "ADMIN"]
+      roles: ["FACULTY"]
     },
     {
       label: "Payroll",
       icon: CreditCard,
       href: "/dashboard/payroll",
       color: "text-emerald-700",
-      roles: ["FACULTY", "ADMIN"]
+      roles: ["FACULTY"]
     },
     {
       label: "Reports",

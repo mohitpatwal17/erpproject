@@ -1,0 +1,170 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { StatCard } from "@/components/stat-card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Users,
+    GraduationCap,
+    CalendarCheck,
+    CreditCard,
+    Activity,
+    Loader2
+} from "lucide-react";
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+    Legend
+} from "recharts";
+
+const COLORS = ['#10b981', '#f43f5e'];
+
+export function AdminDashboard({ session }) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchStats() {
+            try {
+                const res = await fetch("/api/dashboard/stats");
+                const json = await res.json();
+                if (res.ok) {
+                    setData(json);
+                }
+            } catch (err) {
+                console.error("Failed to fetch admin stats", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchStats();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    const { stats } = data || {
+        stats: { studentCount: 0, facultyCount: 0, globalAttendance: 0, totalRevenue: 0 }
+    };
+
+    // Prepare some dynamic chart data based on stats
+    const feeData = [
+        { name: 'Collected', value: stats.totalRevenue },
+        { name: 'Estimated Due', value: stats.studentCount * 50000 - stats.totalRevenue }, // Simple estimation
+    ];
+
+    return (
+        <div className="space-y-6 animate-in fade-in duration-500">
+            <div className="flex items-center justify-between">
+                <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+                    Admin Overview
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                    Global Performance Metrics
+                </p>
+            </div>
+
+            {/* KPI Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                    title="Total Students"
+                    value={stats.studentCount.toString()}
+                    icon={Users}
+                    description="Active registrations"
+                    trend="+1" // Placeholder
+                    trendUp={true}
+                    href="/dashboard/students"
+                    className="border-l-violet-500 shadow-sm hover:shadow-md transition-all"
+                />
+                <StatCard
+                    title="Total Faculty"
+                    value={stats.facultyCount.toString()}
+                    icon={GraduationCap}
+                    description="Faculty members"
+                    trend="+0"
+                    trendUp={true}
+                    href="/dashboard/faculty"
+                    className="border-l-pink-500 shadow-sm hover:shadow-md transition-all"
+                />
+                <StatCard
+                    title="Avg Attendance"
+                    value={`${stats.globalAttendance}%`}
+                    icon={CalendarCheck}
+                    description="Global average"
+                    trend="-1.2%"
+                    trendUp={false}
+                    href="/dashboard/attendance"
+                    className="border-l-emerald-500 shadow-sm hover:shadow-md transition-all"
+                />
+                <StatCard
+                    title="Revenue"
+                    value={`₹${(stats.totalRevenue / 100000).toFixed(1)}L`}
+                    icon={CreditCard}
+                    description="Total collection"
+                    trend="+5%"
+                    trendUp={true}
+                    href="/dashboard/fees"
+                    className="border-l-yellow-500 shadow-sm hover:shadow-md transition-all"
+                />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                {/* Visualizations (Using some mock trends but real stats) */}
+                <Card className="col-span-4 border-none shadow-md">
+                    <CardHeader>
+                        <CardTitle>Attendance Insights</CardTitle>
+                        <CardDescription>Global daily attendance trend</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pl-2 text-center text-muted-foreground italic h-[350px] flex items-center justify-center border-dashed border-2 rounded-lg m-4">
+                        Graph data will populate as daily records accumulate.
+                    </CardContent>
+                </Card>
+
+                {/* Fees Pie Chart */}
+                <Card className="col-span-3 border-none shadow-md">
+                    <CardHeader>
+                        <CardTitle>Financial Summary</CardTitle>
+                        <CardDescription>Revenue Distribution</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie
+                                    data={feeData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={100}
+                                    fill="#8884d8"
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {feeData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip formatter={(value) => `₹${(Number(value) / 100000).toFixed(1)}L`}
+                                    contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                />
+                                <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
+}

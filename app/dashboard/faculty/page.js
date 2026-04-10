@@ -62,7 +62,8 @@ export default function FacultyPage() {
             header: "Workload",
             cell: ({ row }) => {
                 const subjects = row.getValue("subjects");
-                return <span className="font-medium">{subjects.length} Subjects</span>;
+                const count = typeof subjects === "string" ? subjects.split(",").length : (subjects?.length || 0);
+                return <span className="font-medium">{count} Subjects</span>;
             },
         },
         {

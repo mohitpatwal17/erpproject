@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,32 +11,56 @@ import {
     Clock,
     Megaphone,
     ArrowRight,
-    Briefcase
+    Briefcase,
+    Loader2,
+    CheckCircle2
 } from "lucide-react";
 import Link from "next/link";
 
-const PENDING_TASKS = [
-    { id: 1, title: "Mark Attendance for CSE-A", urgent: true, action: "Mark Now", href: "/dashboard/attendance" },
-    { id: 2, title: "Upload Marks for Networking Quiz", urgent: false, action: "Upload", href: "/dashboard/exams" },
-    { id: 3, title: "Approve Leave Request: Amit Singh", urgent: false, action: "Review", href: "/dashboard/leaves" },
-];
+export function FacultyDashboard({ session }) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const userName = session?.user?.name || "Professor";
 
-const TODAY_CLASSES = [
-    { time: "09:00 - 10:00", subject: "Data Structures", class: "CSE - Sem 3", room: "LH-101", status: "Done" },
-    { time: "11:00 - 12:00", subject: "Algorithms", class: "CSE - Sem 4", room: "LH-102", status: "Upcoming" },
-    { time: "02:00 - 04:00", subject: "DS Lab", class: "CSE - Sem 3", room: "LAB-1", status: "Upcoming" },
-];
+    useEffect(() => {
+        async function fetchStats() {
+            try {
+                const res = await fetch("/api/dashboard/stats");
+                const json = await res.json();
+                if (res.ok) {
+                    setData(json);
+                }
+            } catch (err) {
+                console.error("Failed to fetch faculty stats", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchStats();
+    }, []);
 
-export function FacultyDashboard() {
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    const { stats, announcements } = data || {
+        stats: { classesToday: 0, totalStudents: 0, leaveBalance: 0, pendingTasks: 0 },
+        announcements: []
+    };
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-pink-600 to-rose-600 text-transparent bg-clip-text">
-                        Welcome Back, Dr. Wilson
+                        Welcome Back, {userName}
                     </h2>
                     <p className="text-muted-foreground mt-1">
-                        Department of Computer Science
+                        Professional Faculty Dashboard
                     </p>
                 </div>
                 <div className="flex gap-2">
@@ -56,20 +81,22 @@ export function FacultyDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">3</div>
-                        <p className="text-xs text-pink-100 mt-1">4 Hours of Teaching</p>
+                        <div className="text-3xl font-bold">{stats.classesToday}</div>
+                        <p className="text-xs text-pink-100 mt-1">Schedule for today</p>
                     </CardContent>
                 </Card>
 
                 <Card className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-                            <Users className="w-4 h-4 mr-2 text-blue-500" /> Students
+                            <Users className="w-4 h-4 mr-2 text-blue-500" /> Dept. Students
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-blue-600">120</div>
-                        <p className="text-xs text-muted-foreground mt-1">Across 3 courses</p>
+                        <div className="text-2xl font-bold text-blue-600">
+                            {stats.totalStudentsDepartment || 0}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">In your department</p>
                     </CardContent>
                 </Card>
 
@@ -80,8 +107,8 @@ export function FacultyDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-emerald-600">8 CL</div>
-                        <p className="text-xs text-muted-foreground mt-1">5 SL remaining</p>
+                        <div className="text-2xl font-bold text-emerald-600">{stats.leaveBalance} Days</div>
+                        <p className="text-xs text-muted-foreground mt-1">Available for this year</p>
                     </CardContent>
                 </Card>
 
@@ -92,73 +119,61 @@ export function FacultyDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-amber-600">3</div>
+                        <div className="text-2xl font-bold text-amber-600">{stats.pendingTasks}</div>
                         <p className="text-xs text-muted-foreground mt-1">Requires attention</p>
                     </CardContent>
                 </Card>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-                {/* Schedule Feed */}
+                {/* Announcements Card */}
                 <Card className="col-span-4 border-none shadow-md">
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <CalendarCheck className="w-5 h-5 mr-2 text-indigo-500" />
-                            Today's Schedule
+                            <Megaphone className="w-5 h-5 mr-2 text-indigo-500" />
+                            Recent Announcements
                         </CardTitle>
-                        <CardDescription>Your teaching timeline for today</CardDescription>
+                        <CardDescription>Latest news from the administration</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 dark:before:via-slate-700 before:to-transparent">
-                            {TODAY_CLASSES.map((cls, index) => (
-                                <div key={index} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                    <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-300 group-[.is-active]:bg-emerald-500 text-slate-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                                        {index === 0 ? <CheckCircle2 className="w-5 h-5 text-white" /> : <Clock className="w-5 h-5 text-white" />}
+                        <div className="space-y-4">
+                            {announcements.length > 0 ? announcements.map((ann) => (
+                                <div key={ann.id} className="p-4 border rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h4 className="font-bold text-sm">{ann.title}</h4>
+                                        <Badge variant={ann.priority === "HIGH" ? "destructive" : "outline"}>
+                                            {ann.priority}
+                                        </Badge>
                                     </div>
-                                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded border border-slate-200 shadow bg-white dark:bg-slate-900 dark:border-slate-800">
-                                        <div className="flex items-center justify-between space-x-2 mb-1">
-                                            <div className="font-bold text-slate-900 dark:text-slate-100">{cls.subject}</div>
-                                            <time className="font-caveat font-medium text-indigo-500 text-xs">{cls.time}</time>
-                                        </div>
-                                        <div className="text-slate-500 dark:text-slate-400 text-xs">
-                                            {cls.class} • {cls.room}
-                                        </div>
-                                    </div>
+                                    <p className="text-xs text-muted-foreground mb-2">{ann.content}</p>
+                                    <p className="text-[10px] text-muted-foreground italic">Posted: {new Date(ann.createdAt).toLocaleDateString()}</p>
                                 </div>
-                            ))}
+                            )) : (
+                                <p className="text-sm text-neutral-500 italic">No announcements found.</p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Tasks List */}
+                {/* Quick Info / Tips Card */}
                 <Card className="col-span-3 border-none shadow-md">
                     <CardHeader>
-                        <CardTitle>Action Items</CardTitle>
-                        <CardDescription>Tasks requiring your input</CardDescription>
+                        <CardTitle>Faculty Resources</CardTitle>
+                        <CardDescription>Shortcuts and guides</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {PENDING_TASKS.map((task) => (
-                                <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-sm font-medium leading-none">{task.title}</p>
-                                            {task.urgent && <span className="flex h-2 w-2 rounded-full bg-rose-500" />}
-                                        </div>
-                                    </div>
-                                    <Button size="sm" variant="secondary" className="text-xs h-8" asChild>
-                                        <Link href={task.href}>{task.action}</Link>
-                                    </Button>
-                                </div>
-                            ))}
-                            <div className="pt-4 border-t">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-2">
-                                        <Megaphone className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-sm text-muted-foreground">Department Meeting at 3 PM</p>
-                                    </div>
-                                    <Button variant="ghost" size="sm" className="text-xs">Details</Button>
-                                </div>
+                            <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/20">
+                                <p className="text-sm font-medium">Mark Attendance</p>
+                                <Button size="sm" variant="ghost" asChild>
+                                    <Link href="/dashboard/attendance"><ArrowRight className="h-4 w-4" /></Link>
+                                </Button>
+                            </div>
+                            <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/20">
+                                <p className="text-sm font-medium">Exam Upload</p>
+                                <Button size="sm" variant="ghost" asChild>
+                                    <Link href="/dashboard/exams"><ArrowRight className="h-4 w-4" /></Link>
+                                </Button>
                             </div>
                         </div>
                     </CardContent>
@@ -167,5 +182,3 @@ export function FacultyDashboard() {
         </div>
     );
 }
-
-import { CheckCircle2 } from "lucide-react";

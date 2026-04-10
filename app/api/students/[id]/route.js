@@ -1,45 +1,68 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { prisma } from "@/lib/prisma";
 
-export async function GET(req, { params }) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    }
+export async function GET(request, { params }) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { id } = await params;
+  const student = await prisma.student.findUnique({
+    where: { id: params.id },
+    include: {
+      user: { select: { name: true, email: true, avatar: true } },
+      attendanceRecords: { orderBy: { date: "desc" }, take: 30 },
+      feeRecords: { orderBy: { paidAt: "desc" } },
+      examResults: { include: { exam: true } },
+    },
+  });
 
-    // Student can only see their own data, unless they are an ADMIN or FACULTY
-    if (session.user.role === 'STUDENT' && session.user.id !== id) {
-      return NextResponse.json({ message: 'Forbidden. You can only access your own profile.' }, { status: 403 });
-    }
+  if (!student) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json(student);
+}
 
-    const student = await prisma.student.findUnique({
-      where: { userId: id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            avatar: true,
-            isActive: true,
-            createdAt: true
-          }
-        }
-      }
-    });
-
-    if (!student) {
-      return NextResponse.json({ message: 'Student profile not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ student });
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+export async function PUT(request, { params }) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+
+  const body = await request.json();
+  const student = await prisma.student.update({
+    where: { id: params.id },
+    data: {
+      course: body.course,
+      semester: body.semester ? parseInt(body.semester) : undefined,
+      phone: body.phone,
+      address: body.address,
+      guardianName: body.guardianName,
+      guardianPhone: body.guardianPhone,
+      user: {
+        update: {
+          name: body.name,
+        },
+      },
+    },
+  });
+  return NextResponse.json(student);
+}
+
+export async function DELETE(request, { params }) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const student = await prisma.student.findUnique({
+    where: { id: params.id },
+    select: { userId: true },
+  });
+
+  if (!student) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  await prisma.user.delete({
+    where: { id: student.userId },
+  });
+  
+  return NextResponse.json({ success: true });
 }

@@ -24,13 +24,13 @@ export default function DashboardPage() {
     const role = session.user.role;
 
     if (role === 'STUDENT') {
-        return <StudentDashboard />;
+        return <StudentDashboard session={session} />;
     }
 
     if (role === 'FACULTY') {
-        return <FacultyDashboard />;
+        return <FacultyDashboard session={session} />;
     }
 
     // Default to Admin Dashboard (or if role is ADMIN)
-    return <AdminDashboard />;
+    return <AdminDashboard session={session} />;
 }
