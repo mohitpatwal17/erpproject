@@ -9,15 +9,6 @@ import { ArrowLeft, Mail, Phone, MapPin, Calendar, BookOpen, GraduationCap, Down
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer
-} from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StudentProfilePage({ params }) {
@@ -188,18 +179,13 @@ export default function StudentProfilePage({ params }) {
                                         <CardDescription>Marks distribution across exams</CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="h-[300px]">
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart data={performanceData}>
-                                                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                                    <XAxis dataKey="subject" fontSize={12} tickLine={false} axisLine={false} />
-                                                    <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                                                    <Tooltip
-                                                        contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }}
-                                                    />
-                                                    <Bar dataKey="marks" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                                                </BarChart>
-                                            </ResponsiveContainer>
+                                        <div className="rounded-md border p-4 bg-muted/5">
+                                            {performanceData.map((data, i) => (
+                                                <div key={i} className="flex justify-between items-center py-2 border-b last:border-0">
+                                                    <span className="font-medium text-sm">{data.subject}</span>
+                                                    <span className="font-bold">{data.marks} / 100</span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </CardContent>
                                 </Card>

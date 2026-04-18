@@ -11,16 +11,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Faculty } from "@/lib/types";
 import { toast } from "sonner";
 
-interface FacultyFormProps {
-    initialData?: Faculty | null;
-    onSuccess: () => void;
-}
-
-export function FacultyForm({ initialData, onSuccess }: FacultyFormProps) {
-    const [formData, setFormData] = useState<Partial<Faculty>>(
+export function FacultyForm({ initialData, onSuccess }) {
+    const [formData, setFormData] = useState(
         initialData || {
             name: "",
             email: "",
@@ -33,26 +27,42 @@ export function FacultyForm({ initialData, onSuccess }: FacultyFormProps) {
     );
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSelectChange = (name: string, value: string) => {
+    const handleSelectChange = (name, value) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
 
-        // Simulate API Call
-        setTimeout(() => {
-            console.log("Submitting Faculty Data:", formData);
+        try {
+            const url = initialData ? `/api/faculty/${initialData.id}` : "/api/faculty";
+            const method = initialData ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Failed to save faculty record");
+            }
+
             toast.success(initialData ? "Faculty updated successfully" : "Faculty added successfully");
-            setIsLoading(false);
             onSuccess();
-        }, 1000);
+        } catch (error) {
+            console.error("Error saving faculty:", error);
+            toast.error(error.message || "An unexpected error occurred");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

@@ -13,6 +13,10 @@ export async function GET() {
 
     const courses = await prisma.course.findMany({
       include: {
+        department: true,
+        subjects: {
+          orderBy: { semester: 'asc' }
+        },
         _count: {
           select: { exams: true }
         }
@@ -37,12 +41,31 @@ export async function POST(req) {
     const body = await req.json();
     const { name, code, credits, department } = body;
 
+    // Resolve Department
+    let dept = await prisma.department.findFirst({
+      where: {
+        OR: [
+          { name: department },
+          { code: department.toUpperCase() }
+        ]
+      }
+    });
+
+    if (!dept) {
+      dept = await prisma.department.create({
+        data: {
+          name: department,
+          code: department.replace(/\s+/g, '').toUpperCase()
+        }
+      });
+    }
+
     const course = await prisma.course.create({
       data: {
         name,
         code,
         credits: parseInt(credits),
-        department,
+        departmentId: dept.id,
       }
     });
 

@@ -14,6 +14,7 @@ const nextConfig = {
             },
         ],
     },
+    serverExternalPackages: ['@react-pdf/renderer', 'canvas'],
 };
 
 export default nextConfig;

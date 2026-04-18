@@ -41,7 +41,7 @@ export default function StudentsPage() {
     const fetchStudents = async () => {
         try {
             setLoading(true);
-            const res = await fetch("/api/students");
+            const res = await fetch(`/api/students?_t=${Date.now()}`, { cache: 'no-store' });
             const json = await res.json();
             
             if (res.ok) {
@@ -118,6 +118,7 @@ export default function StudentsPage() {
         },
         {
             accessorKey: "user.name",
+            id: "name",
             header: "Student Name",
             cell: ({ row }) => {
                 const name = row.original.user?.name || "N/A";

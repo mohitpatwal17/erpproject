@@ -52,8 +52,6 @@ function DialogContent({
   children,
   showCloseButton = true,
   ...props
-} & {
-  showCloseButton?: boolean
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
@@ -96,8 +94,6 @@ function DialogFooter({
   showCloseButton = false,
   children,
   ...props
-} & {
-  showCloseButton?: boolean
 }) {
   return (
     <div

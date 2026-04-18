@@ -48,17 +48,40 @@ export async function POST(req) {
             userId: user.id,
             rollNumber,
             course,
-            semester: 1
+            semester: 1,
+            totalFees: 150000,
+            feeStatus: 'DUE'
           }
         });
       } else if (role === 'FACULTY') {
         if (!department) {
           throw new Error('Missing faculty fields (department)');
         }
+
+        // Auto-resolve department (Find or Create)
+        let dept = await tx.department.findFirst({
+          where: {
+            OR: [
+              { name: department },
+              { code: department.replace(/\s+/g, '').toUpperCase() }
+            ]
+          }
+        });
+
+        if (!dept) {
+          dept = await tx.department.create({
+            data: {
+              name: department,
+              code: department.replace(/\s+/g, '').toUpperCase()
+            }
+          });
+        }
+
         await tx.faculty.create({
           data: {
             userId: user.id,
-            department,
+            employeeId: `FAC-${Date.now()}`,
+            departmentId: dept.id,
             designation: 'Lecturer'
           }
         });

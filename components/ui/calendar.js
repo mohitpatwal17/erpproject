@@ -9,7 +9,6 @@ import {
 import {
   DayPicker,
   getDefaultClassNames,
-  type DayButton,
 } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
@@ -24,8 +23,6 @@ function Calendar({
   formatters,
   components,
   ...props
-} & {
-  buttonVariant?["variant"]
 }) {
   const defaultClassNames = getDefaultClassNames()
 
@@ -187,7 +184,7 @@ function CalendarDayButton({
 }) {
   const defaultClassNames = getDefaultClassNames()
 
-  const ref = React.useRef<HTMLButtonElement>(null)
+  const ref = React.useRef(null)
   React.useEffect(() => {
     if (modifiers.focused) ref.current?.focus()
   }, [modifiers.focused])

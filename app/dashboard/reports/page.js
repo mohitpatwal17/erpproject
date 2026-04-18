@@ -11,18 +11,6 @@ import {
     Users
 } from "lucide-react";
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    LineChart,
-    Line,
-    Legend
-} from "recharts";
-import {
     Select,
     SelectContent,
     SelectItem,
@@ -89,18 +77,18 @@ export default function ReportsPage() {
                             <CardDescription>Average student attendance percentage by month.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ResponsiveContainer width="100%" height={350}>
-                                <LineChart data={ATTENDANCE_TREND}>
-                                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                    <XAxis dataKey="month" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px' }}
-                                        itemStyle={{ color: 'var(--foreground)' }}
-                                    />
-                                    <Line type="monotone" dataKey="avg" stroke="var(--color-primary)" strokeWidth={2} activeDot={{ r: 8 }} name="Avg Attendance %" />
-                                </LineChart>
-                            </ResponsiveContainer>
+                            <div className="rounded-md border">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-muted/50">
+                                        <tr><th className="p-3">Month</th><th className="p-3">Average Attendance</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {ATTENDANCE_TREND.map((d, i) => (
+                                            <tr key={i} className="border-t"><td className="p-3 font-medium">{d.month}</td><td className="p-3">{d.avg}%</td></tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </CardContent>
                         <CardFooter className="flex justify-end gap-2 bg-muted/10 pt-4">
                             <Button variant="outline" size="sm" onClick={() => handleExport("PDF", "Attendance Report")}>
@@ -120,18 +108,18 @@ export default function ReportsPage() {
                             <CardDescription>Average aggregate marks across departments.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ResponsiveContainer width="100%" height={350}>
-                                <BarChart data={PERFORMANCE_DATA}>
-                                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                    <XAxis dataKey="course" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px' }}
-                                        cursor={{ fill: 'transparent' }}
-                                    />
-                                    <Bar dataKey="avgMarks" fill="var(--color-chart-2)" radius={[4, 4, 0, 0]} name="Average Marks" />
-                                </BarChart>
-                            </ResponsiveContainer>
+                            <div className="rounded-md border">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-muted/50">
+                                        <tr><th className="p-3">Department</th><th className="p-3">Average Marks</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {PERFORMANCE_DATA.map((d, i) => (
+                                            <tr key={i} className="border-t"><td className="p-3 font-medium">{d.course}</td><td className="p-3">{d.avgMarks}</td></tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </CardContent>
                         <CardFooter className="flex justify-end gap-2 bg-muted/10 pt-4">
                             <Button variant="outline" size="sm" onClick={() => handleExport("PDF", "Performance Report")}>
@@ -148,19 +136,18 @@ export default function ReportsPage() {
                             <CardDescription>Monthly revenue collection trend.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ResponsiveContainer width="100%" height={350}>
-                                <BarChart data={FEE_COLLECTION_DATA}>
-                                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                                    <XAxis dataKey="month" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val / 100000}L`} />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px' }}
-                                        formatter={(value) => [`₹${(value).toLocaleString()}`, "Collected"]}
-                                        cursor={{ fill: 'transparent' }}
-                                    />
-                                    <Bar dataKey="collected" fill="var(--color-chart-3)" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                            <div className="rounded-md border">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="bg-muted/50">
+                                        <tr><th className="p-3">Month</th><th className="p-3">Collected Revenue</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {FEE_COLLECTION_DATA.map((d, i) => (
+                                            <tr key={i} className="border-t"><td className="p-3 font-medium">{d.month}</td><td className="p-3">₹{d.collected.toLocaleString()}</td></tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </CardContent>
                         <CardFooter className="flex justify-end gap-2 bg-muted/10 pt-4">
                             <Button variant="outline" size="sm" onClick={() => handleExport("CSV", "Financial Report")}>

@@ -5,16 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Course } from "@/lib/types";
 import { toast } from "sonner";
 
-interface CourseFormProps {
-    initialData?: Course | null;
-    onSuccess: () => void;
-}
-
-export function CourseForm({ initialData, onSuccess }: CourseFormProps) {
-    const [formData, setFormData] = useState<Partial<Course>>(
+export function CourseForm({ initialData, onSuccess }) {
+    const [formData, setFormData] = useState(
         initialData || {
             name: "",
             code: "",
@@ -26,7 +20,7 @@ export function CourseForm({ initialData, onSuccess }: CourseFormProps) {
     );
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
@@ -34,17 +28,33 @@ export function CourseForm({ initialData, onSuccess }: CourseFormProps) {
         }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
 
-        // Simulate API Call
-        setTimeout(() => {
-            console.log("Submitting Course Data:", formData);
+        try {
+            const url = initialData ? `/api/courses/${initialData.id}` : "/api/courses";
+            const method = initialData ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Failed to save course");
+            }
+
             toast.success(initialData ? "Course updated successfully" : "Course created successfully");
-            setIsLoading(false);
             onSuccess();
-        }, 1000);
+        } catch (error) {
+            console.error("Error saving course:", error);
+            toast.error(error.message || "An unexpected error occurred");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

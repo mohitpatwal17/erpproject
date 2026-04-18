@@ -47,10 +47,14 @@ export function FacultyDashboard({ session }) {
         );
     }
 
-    const { stats, announcements } = data || {
-        stats: { classesToday: 0, totalStudents: 0, leaveBalance: 0, pendingTasks: 0 },
-        announcements: []
+    const { stats, announcements } = data || {};
+    const effectiveStats = stats || { 
+        classesToday: 0, 
+        totalStudentsDepartment: 0, 
+        leaveBalance: 0, 
+        pendingTasks: 0 
     };
+    const effectiveAnnouncements = announcements || [];
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -81,11 +85,11 @@ export function FacultyDashboard({ session }) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{stats.classesToday}</div>
+                        <div className="text-3xl font-bold">{effectiveStats.classesToday}</div>
                         <p className="text-xs text-pink-100 mt-1">Schedule for today</p>
                     </CardContent>
                 </Card>
-
+ 
                 <Card className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
@@ -94,12 +98,12 @@ export function FacultyDashboard({ session }) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-blue-600">
-                            {stats.totalStudentsDepartment || 0}
+                            {effectiveStats.totalStudentsDepartment || 0}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">In your department</p>
                     </CardContent>
                 </Card>
-
+ 
                 <Card className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
@@ -107,11 +111,11 @@ export function FacultyDashboard({ session }) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-emerald-600">{stats.leaveBalance} Days</div>
+                        <div className="text-2xl font-bold text-emerald-600">{effectiveStats.leaveBalance} Days</div>
                         <p className="text-xs text-muted-foreground mt-1">Available for this year</p>
                     </CardContent>
                 </Card>
-
+ 
                 <Card className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
@@ -119,12 +123,12 @@ export function FacultyDashboard({ session }) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-amber-600">{stats.pendingTasks}</div>
+                        <div className="text-2xl font-bold text-amber-600">{effectiveStats.pendingTasks}</div>
                         <p className="text-xs text-muted-foreground mt-1">Requires attention</p>
                     </CardContent>
                 </Card>
             </div>
-
+ 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
                 {/* Announcements Card */}
                 <Card className="col-span-4 border-none shadow-md">
@@ -137,7 +141,7 @@ export function FacultyDashboard({ session }) {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {announcements.length > 0 ? announcements.map((ann) => (
+                            {effectiveAnnouncements.length > 0 ? effectiveAnnouncements.map((ann) => (
                                 <div key={ann.id} className="p-4 border rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
                                     <div className="flex items-center justify-between mb-2">
                                         <h4 className="font-bold text-sm">{ann.title}</h4>

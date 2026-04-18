@@ -4,6 +4,9 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -16,8 +19,8 @@ export async function GET(request) {
   const students = await prisma.student.findMany({
     where: {
       OR: [
-        { user: { name: { contains: search, mode: "insensitive" } } },
-        { rollNumber: { contains: search, mode: "insensitive" } },
+        { user: { name: { contains: search } } },
+        { rollNumber: { contains: search } },
       ],
     },
     include: { 

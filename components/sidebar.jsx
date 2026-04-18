@@ -137,7 +137,7 @@ export function Sidebar({ className, user }) {
               </div>
               <div className="flex flex-col">
                 <h1 className="text-xl font-black tracking-tighter bg-gradient-to-r from-white to-white/70 text-transparent bg-clip-text">
-                  ERPNISHA
+                  ERP
                 </h1>
                 <span className="text-[10px] font-bold text-blue-400 tracking-[0.2em] uppercase">College ERP</span>
               </div>

@@ -27,12 +27,27 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const { 
-      name, email, password, employeeId, departmentId,
+    let { 
+      name, email, password, employeeId, departmentId, department,
       designation, qualification, joiningDate, subjects 
     } = body;
 
     const hashedPassword = await bcrypt.hash(password || "faculty123", 10);
+
+    // Auto-resolve ID and Department
+    if (!employeeId) employeeId = `FAC-${Date.now()}`;
+    
+    if (!departmentId && department) {
+      let dept = await prisma.department.findUnique({ where: { name: department } });
+      if (!dept) {
+        dept = await prisma.department.create({
+          data: { name: department, code: department.replace(/\s+/g, '').toUpperCase() }
+        });
+      }
+      departmentId = dept.id;
+    }
+
+    if (!departmentId) throw new Error("Department is required");
 
     const faculty = await prisma.user.create({
       data: {
@@ -44,10 +59,10 @@ export async function POST(request) {
           create: {
             employeeId,
             departmentId,
-            designation,
+            designation: designation || "Lecturer",
             qualification,
             joiningDate: joiningDate ? new Date(joiningDate) : null,
-            subjects: subjects || [],
+            subjects: subjects || "",
           },
         },
       },

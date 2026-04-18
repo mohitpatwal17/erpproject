@@ -12,16 +12,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Student } from "@/lib/types";
 import { toast } from "sonner";
 
-interface StudentFormProps {
-    initialData?: Student | null;
-    onSuccess: () => void;
-}
-
-export function StudentForm({ initialData, onSuccess }: StudentFormProps) {
-    const [formData, setFormData] = useState<Partial<Student>>(
+export function StudentForm({ initialData, onSuccess }) {
+    const [formData, setFormData] = useState(
         initialData || {
             name: "",
             email: "",
@@ -37,26 +31,42 @@ export function StudentForm({ initialData, onSuccess }: StudentFormProps) {
     );
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSelectChange = (name: string, value: string) => {
+    const handleSelectChange = (name, value) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
 
-        // Simulate API Call
-        setTimeout(() => {
-            console.log("Submitting Student Data:", formData);
+        try {
+            const url = initialData ? `/api/students/${initialData.id}` : "/api/students";
+            const method = initialData ? "PUT" : "POST";
+            
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+            
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Failed to save student");
+            }
+
             toast.success(initialData ? "Student updated successfully" : "Student created successfully");
-            setIsLoading(false);
             onSuccess();
-        }, 1000);
+        } catch (error) {
+            console.error("Error saving student:", error);
+            toast.error(error.message || "An unexpected error occurred");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    CardFooter
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
     Dialog,
@@ -14,14 +21,6 @@ import {
 } from "@/components/ui/dialog";
 import { Download, Eye, DollarSign, TrendingUp, Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
-import {
-    PieChart,
-    Pie,
-    Cell,
-    ResponsiveContainer,
-    Tooltip,
-    Legend
-} from "recharts";
 
 // Mock Data
 const SALARY_HISTORY = [
@@ -152,34 +151,7 @@ export default function PayrollPage() {
                     </CardContent>
                 </Card>
 
-                {/* Salary Breakdown Chart */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Salary Structure</CardTitle>
-                        <CardDescription>Breakdown of earnings</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ResponsiveContainer width="100%" height={250}>
-                            <PieChart>
-                                <Pie
-                                    data={SALARY_STRUCTURE}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={5}
-                                    dataKey="value"
-                                >
-                                    {SALARY_STRUCTURE.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
+
             </div>
         </div>
     );

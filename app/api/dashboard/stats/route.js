@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -12,6 +14,62 @@ export async function GET() {
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (session.user.role === "STUDENT") {
+      const student = await prisma.student.findUnique({
+        where: { userId: session.user.id },
+      });
+
+      if (!student) {
+        return NextResponse.json({
+          stats: { attendancePercentage: 0, totalFeesDue: 0, examCount: 0 },
+          announcements: [],
+          exams: [],
+          profile: { rollNumber: "N/A", course: "N/A", semester: 0 }
+        });
+      }
+
+      return NextResponse.json({
+        stats: {
+          attendancePercentage: 0, // Mock for now
+          totalFeesDue: (student.totalFees || 0) - (student.paidFees || 0),
+          examCount: 0
+        },
+        announcements: [],
+        exams: [],
+        profile: {
+          rollNumber: student.rollNumber || "N/A",
+          course: student.course || "N/A",
+          semester: student.semester || 0,
+        }
+      });
+    }
+
+    if (session.user.role === "FACULTY") {
+      const faculty = await prisma.faculty.findUnique({
+        where: { userId: session.user.id },
+        include: { department: true }
+      });
+
+      const totalStudentsDepartment = faculty ? await prisma.student.count({
+        where: { 
+          OR: [
+            { course: { contains: faculty.department.code } },
+            { course: { contains: faculty.department.name } }
+          ]
+        }
+      }) : 0;
+
+      return NextResponse.json({
+        stats: {
+          classesToday: 0,
+          totalStudentsDepartment,
+          leaveBalance: 12,
+          pendingTasks: 4
+        },
+        announcements: [],
+      });
+    }
 
     const [
       totalStudents,

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataTable } from "@/components/tables/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Faculty } from "@/lib/types";
 import { MOCK_FACULTY } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreHorizontal, Pencil, Trash2, CalendarCheck, BookOpen } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, CalendarCheck, BookOpen, Loader2 } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,6 +15,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 import {
     Dialog,
     DialogContent,
@@ -29,29 +30,63 @@ import { Badge } from "@/components/ui/badge";
 
 export default function FacultyPage() {
     const router = useRouter();
-    const [data, setData] = useState(MOCK_FACULTY);
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingFaculty, setEditingFaculty] = useState(null);
 
-    const handleDelete = (id) => {
+    const fetchFaculty = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch(`/api/faculty?_t=${Date.now()}`, { cache: 'no-store' });
+            const json = await res.json();
+            if (res.ok) setData(json);
+        } catch (err) {
+            console.error("Error fetching faculty:", err);
+            toast.error("Failed to load faculty members");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchFaculty();
+    }, []);
+
+    const handleDelete = async (id) => {
         if (confirm("Are you sure you want to delete this faculty member?")) {
-            setData(data.filter((f) => f.id !== id));
+            try {
+                const res = await fetch(`/api/faculty/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    toast.success("Faculty deleted successfully");
+                    fetchFaculty();
+                } else {
+                    toast.error("Failed to delete faculty member");
+                }
+            } catch (error) {
+                toast.error("An error occurred during deletion");
+            }
         }
     };
 
     const columns = [
         {
-            accessorKey: "name",
+            accessorKey: "user.name",
+            id: "name",
             header: "Name",
+            cell: ({ row }) => <span className="font-medium">{row.original.user?.name}</span>
         },
         {
-            accessorKey: "email",
+            accessorKey: "user.email",
+            id: "email",
             header: "Email",
+            cell: ({ row }) => <span className="text-muted-foreground">{row.original.user?.email}</span>
         },
         {
-            accessorKey: "department",
+            accessorKey: "department.name",
+            id: "department",
             header: "Department",
-            cell: ({ row }) => <Badge variant="secondary">{row.getValue("department")}</Badge>,
+            cell: ({ row }) => <Badge variant="secondary">{row.original.department?.name}</Badge>,
         },
         {
             accessorKey: "designation",
@@ -107,7 +142,16 @@ export default function FacultyPage() {
     const handleSuccess = () => {
         setIsFormOpen(false);
         setEditingFaculty(null);
+        fetchFaculty();
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -134,7 +178,17 @@ export default function FacultyPage() {
                 </Dialog>
             </div>
 
-            <DataTable columns={columns} data={data} searchKey="name" />
+            <DataTable 
+                columns={columns} 
+                data={data || []} 
+                searchKey="name" 
+                placeholder="Search faculty by name..."
+            />
+            {data.length === 0 && !loading && (
+                <div className="text-center py-20 border-2 border-dashed rounded-xl">
+                    <p className="text-muted-foreground italic">No faculty members found in the institutional records.</p>
+                </div>
+            )}
         </div>
     );
 }

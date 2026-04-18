@@ -35,14 +35,10 @@ import { useSession } from "next-auth/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import dynamic from "next/dynamic";
 
-// Dynamic import for PDF components to avoid SSR issues
-const PDFDownloadLink = dynamic(
-    () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
-    { ssr: false }
-);
-const FeeReceiptPDF = dynamic(
-    () => import("@/components/pdf/fee-receipt").then((mod) => mod.FeeReceiptPDF),
-    { ssr: false }
+// Dynamic import for PDF bridge component to avoid SSR/Turbopack issues
+const FeeReceiptButton = dynamic(
+    () => import("@/components/pdf/fee-receipt-button"),
+    { ssr: false, loading: () => <Button variant="outline" size="sm" disabled><Loader2 className="h-4 w-4 animate-spin mr-1" />Loading...</Button> }
 );
 
 export default function FeesPage() {
@@ -245,19 +241,7 @@ export default function FeesPage() {
                                             </TableCell>
                                             <TableCell className="text-right flex items-center justify-end gap-2">
                                                 {student.feeRecords?.length > 0 && (
-                                                    <div className="inline-flex">
-                                                        <PDFDownloadLink
-                                                            document={<FeeReceiptPDF student={student} transaction={student.feeRecords[0]} />}
-                                                            fileName={`receipt-${student.rollNumber}.pdf`}
-                                                        >
-                                                            {({ loading }) => (
-                                                                <Button variant="outline" size="sm" disabled={loading} className="border-primary/20 text-primary hover:bg-primary/5">
-                                                                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4 mr-1" />}
-                                                                    Receipt
-                                                                </Button>
-                                                            )}
-                                                        </PDFDownloadLink>
-                                                    </div>
+                                                    <FeeReceiptButton student={student} transaction={student.feeRecords[0]} />
                                                 )}
                                                 {userRole !== "STUDENT" ? (
                                                     <Button 

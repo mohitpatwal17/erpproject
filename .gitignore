@@ -43,3 +43,7 @@ next-env.d.ts
 # local databases
 *.db
 *.db-journal
+
+# temporary logs and scratch scripts
+*.log
+/scratch

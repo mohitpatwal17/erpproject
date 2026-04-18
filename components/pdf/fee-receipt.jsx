@@ -181,7 +181,7 @@ export const FeeReceiptPDF = ({ student, transaction }) => (
         <Text style={styles.value}>{transaction?.method || 'Cash'}</Text>
         <Text style={styles.label}>Transaction ID:</Text>
         <Text style={styles.value}>{transaction?.transactionId || 'N/A'}</Text>
-      </div>
+      </View>
 
       {/* Signature */}
       <View style={styles.signature}>
