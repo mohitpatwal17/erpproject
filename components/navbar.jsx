@@ -8,13 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, User, Settings, Bell } from "lucide-react";
+import { MobileSidebar } from "@/components/mobile-sidebar";
 
 export function Navbar() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  // FIX 3: Memoize the user object to avoid unnecessary re-renders 
-  // and handle client-side safety as requested.
   const user = useMemo(() => {
     if (typeof window === "undefined") return null;
     return session?.user ?? null;
@@ -26,8 +25,9 @@ export function Navbar() {
 
   return (
     <div className="flex items-center p-4 border-b h-16 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm sticky top-0 z-50">
+      <MobileSidebar user={user} />
       <div className="flex w-full justify-end items-center space-x-4">
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
+        <Button variant="ghost" size="icon" className="text-muted-foreground transition-colors hover:text-primary">
           <Bell className="h-5 w-5" />
         </Button>
         <div className="h-8 w-[1px] bg-border mx-2" />
