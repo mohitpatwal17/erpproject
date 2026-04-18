@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "CollegeERP - Educational Management System",
+  title: "ERP - Educational Management System",
   description: "A premium dashboard for educational institutions.",
 };
 

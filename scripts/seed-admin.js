@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = 'admin@erpnisha.com';
+  const adminEmail = 'admin@erp.com';
   const adminPassword = 'adminpassword123';
 
   console.log('--- SEEDING ADMIN USER ---');

@@ -125,9 +125,9 @@ export const FeeReceiptPDF = ({ student, transaction }) => (
       <View style={styles.header}>
         <View style={styles.logoSection}>
           <View>
-            <Text style={styles.collegeName}>ERPNisha University</Text>
+            <Text style={styles.collegeName}>ERP University</Text>
             <Text style={styles.collegeAddress}>123 Knowledge Park, New Delhi, India</Text>
-            <Text style={styles.collegeAddress}>Phone: +91 98765 43210 | info@erpnisha.edu</Text>
+            <Text style={styles.collegeAddress}>Phone: +91 98765 43210 | info@erp.edu</Text>
           </View>
         </View>
         <View style={{ textAlign: 'right' }}>
@@ -194,7 +194,7 @@ export const FeeReceiptPDF = ({ student, transaction }) => (
       {/* Footer */}
       <View style={styles.footer}>
         <Text>This is a computer-generated receipt and does not require a physical signature.</Text>
-        <Text style={{ marginTop: 4 }}>© 2025 ERPNisha Institutions. All rights reserved.</Text>
+        <Text style={{ marginTop: 4 }}>© 2025 ERP Institutions. All rights reserved.</Text>
       </View>
     </Page>
   </Document>
