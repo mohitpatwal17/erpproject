@@ -47,3 +47,5 @@ next-env.d.ts
 # temporary logs and scratch scripts
 *.log
 /scratch
+
+.vercel
